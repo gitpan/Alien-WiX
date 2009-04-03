@@ -9,7 +9,7 @@ use base                qw( Exporter );
 use vars                qw( $VERSION @EXPORT_OK %EXPORT_TAGS);
 use Readonly            qw( Readonly );
 use Win32::TieRegistry  qw( KEY_READ ); 
-use version; $VERSION = qv('0.305120');
+use version; $VERSION = version->new('0.305121')->numify();
 
 # http://wix.sourceforge.net/releases/3.0.5120.0/Wix3.msi
 

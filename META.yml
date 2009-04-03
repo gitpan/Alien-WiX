@@ -1,12 +1,12 @@
 ---
 name: Alien-WiX
-version: v0.305120
+version: 0.305121
 author:
   - 'Curtis Jewell <csjewell@cpan.org>'
 abstract: Installing and finding Windows Installer XML (WiX)
 license: perl
 resources:
-  license: ~
+  license: http://dev.perl.org/licenses/
 configure_requires:
   Module::Build: 0.21
   Win32API::Registry: 0.30
@@ -24,7 +24,7 @@ recommends:
 provides:
   Alien::WiX:
     file: lib/Alien/WiX.pm
-    version: v0.305120
+    version: 0.305121
 generated_by: Module::Build version 0.32
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
