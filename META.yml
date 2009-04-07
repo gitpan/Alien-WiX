@@ -1,6 +1,6 @@
 ---
 name: Alien-WiX
-version: 0.305121
+version: 0.305207
 author:
   - 'Curtis Jewell <csjewell@cpan.org>'
 abstract: Installing and finding Windows Installer XML (WiX)
@@ -24,7 +24,7 @@ recommends:
 provides:
   Alien::WiX:
     file: lib/Alien/WiX.pm
-    version: 0.305121
+    version: 0.305207
 generated_by: Module::Build version 0.32
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
