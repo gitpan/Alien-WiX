@@ -1,6 +1,6 @@
 ---
 name: Alien-WiX
-version: 0.305301
+version: 0.305405
 author:
   - 'Curtis Jewell <csjewell@cpan.org>'
 abstract: Installing and finding Windows Installer XML (WiX)
@@ -18,14 +18,15 @@ requires:
   perl: 5.006
   version: 0.76
 build_requires:
+  LWP::UserAgent: 5.819
   Module::Build: 0.21
 recommends:
   Readonly::XS: 1.05
 provides:
   Alien::WiX:
     file: lib/Alien/WiX.pm
-    version: 0.305301
-generated_by: Module::Build version 0.32
+    version: 0.305405
+generated_by: Module::Build version 0.33
 meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4

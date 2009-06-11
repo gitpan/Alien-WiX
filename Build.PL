@@ -5,28 +5,52 @@ use Module::Build 0.21;
 die "OS unsupported" if ('MSWin32' ne $OSNAME);
 
 my $class = Module::Build->subclass(
+
 	class => 'ModuleBuildAlienWiX',
 	code => q{
 		sub ACTION_code {
             my $self = shift;
             my $install_dotnet = $self->notes('install_dotnet');
             my $install_wix = $self->notes('install_wix');
-            my $WIX_URL = 'http://wix.sourceforge.net/releases/3.0.5301.0/Wix3.msi';
+            my $WIX_URL = 'http://wix.sourceforge.net/releases/3.0.5405.0/Wix3.msi';
             my $NET20_URL = 'http://download.microsoft.com/download/0/8/c/08c19fa4-4c4f-4ffb-9d6c-150906578c9e/NetFx20SP1_x86.exe';
+			require Win32;
+            my $NET20_FILE = Win32::GetShortPathName($ENV{TEMP}) . '\NetFx20SP1_x86.exe';
             my $ok;
             
             if ($install_dotnet) {
                 print "Downloading and installing Microsoft .NET Framework 2.0 SP1.\n";
-                $ok = $self->do_system("msiexec /i $NET20_URL /qb!");
-                unless ($ok) {
-                    die q{Couldn't install .NET Framework 2.0 SP1, stopped};
-                } else {
-                    $self->notes('install_dotnet' => 0);
-                }
+
+				# Need to get the file manually - it's not an MSI.
+				require LWP::UserAgent;
+				my $ua = LWP::UserAgent->new;
+				$ua->agent('Alien-WiX/0.305405 ');
+				my $r = $ua->mirror( $NET20_URL, $NET20_FILE );
+				if ( $r->is_error ) {
+					print "Error getting $NET20_URL: " . $r->as_string . "\n";
+					unlink $NET20_FILE if -f $NET20_FILE;
+					die q{Couldn't install .NET Framework 2.0 SP1, stopped};
+				} elsif ( 24_758_792 != -s $NET20_FILE ) {
+					print "Error getting $NET20_URL: File downloaded not correct size.\n";
+					unlink $NET20_FILE if -f $NET20_FILE;
+					die q{Couldn't install .NET Framework 2.0 SP1, stopped};				
+				} else {
+					$self->notes('install_dotnet' => 0);
+				}
+					
+				# Now run it in passive mode.  It's only polite to show some UI.
+				$ok = $self->do_system("$NET20_FILE /passive");
+				unless ($ok) {
+					unlink $NET20_FILE;
+					die q{Couldn't install .NET Framework 2.0 SP1, stopped};
+				} else {
+					$self->notes('install_dotnet' => 0);
+					unlink $NET20_FILE;
+				}
             }
 
             if ($install_wix) {
-                print "Downloading and installing Windows Installer XML 3.0.5301.0.\n";
+                print "Downloading and installing Windows Installer XML 3.0.5405.0.\n";
                 $ok = $self->do_system("msiexec /i $WIX_URL /qb!");
                 unless ($ok) {
                     die q{Couldn't install WiX, stopped};
@@ -39,6 +63,7 @@ my $class = Module::Build->subclass(
         }
     }
 );
+
 
 my $builder = $class->new(
     module_name         => 'Alien::WiX',
@@ -54,6 +79,8 @@ my $builder = $class->new(
     build_requires  => {
 		'Module::Build'
 		                => '0.21',
+		'LWP::UserAgent'
+						=> '5.819',
 	},
 	requires            => {
 		'perl'          => '5.006',
@@ -83,7 +110,7 @@ $builder->notes('install_wix' => 0);
 my ($default, $answer, $installed, $key, $type, $data, $int_data, $version);
 my $WIX30_REGISTRY_KEY = 'SOFTWARE\\Microsoft\\Windows Installer XML\\3.0';
 my $NET20_REGISTRY_KEY = 'SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v2.0.50727';
-my $WIX_VERSION = 5301;
+my $WIX_VERSION = 5405;
 
 $key = 1;
 $installed = 0;
@@ -134,9 +161,8 @@ if (RegOpenKeyEx( regConstant('HKEY_LOCAL_MACHINE'), $WIX30_REGISTRY_KEY, 0, reg
     RegCloseKey( $key );
 }
 
-
 unless ($installed) {
-	$answer = $builder->y_n('Install Windows Installer XML version 3.0.5301?', $default);
+	$answer = $builder->y_n('Install Windows Installer XML version 3.0.5405?', $default);
 
 	if ($answer) {
         $builder->notes('install_wix' => 1);
@@ -146,3 +172,4 @@ unless ($installed) {
 }
 
 $builder->create_build_script();
+
